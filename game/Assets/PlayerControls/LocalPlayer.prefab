@@ -71,7 +71,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 7cf16802e3f577b4c951451214b00e2d, type: 3}
   m_NotificationBehavior: 0
@@ -87,7 +87,7 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme:
+  m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37ef70e1ca3ed4246a28584175bae2e1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: LocalGameplay::PlayerMovement
   viewCamera: {fileID: 0}
   moveSpeed: 6
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e564065bc2b48bcba6c3707722db505, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: LocalGameplay::LocalPlayerShooting
   shotInterval: 0.5
   damage: 25
@@ -134,7 +134,7 @@ MonoBehaviour:
   tracerMaterial: {fileID: 2100000, guid: 5535a13cc0550489db8af368c5d7ba75, type: 2}
   cursorTargetMask:
     serializedVersion: 2
-    m_Bits: 4294967291
+    m_Bits: 251
   aimGuideMaterial: {fileID: 2100000, guid: 1d45267a79ab40ad972c75af774e1473, type: 2}
   aimGuideWidth: 0.025
 --- !u!114 &1975118474
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: da0b04c03f214defa63debe1016048e1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: LocalGameplay::LocalPlayerVisuals
   characterModel: {fileID: 919132149155446097, guid: 23846b5d0afca4720929341f9c9fa682, type: 3}
   animationController: {fileID: 9100000, guid: 40db3173a05ae3242b1c182a09b0a183, type: 2}
