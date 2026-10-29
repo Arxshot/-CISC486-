@@ -49,6 +49,16 @@ Use Unity's **Test Runner** (**Window → General → Test Runner**).
 3. Go to **Projects → New project**, choose the **Universal 3D** template, name it `game`, and set the location to this repository's folder.
 4. Close Unity, then commit `game/` on a branch and merge it with a pull request (see CONTRIBUTING.md).
 
+
+
+
+Alpha version demo video:https://youtu.be/BcPK-7YVlsw?si=46zn4mBG6-4M_c7A
+
+
+
+
+
+
 ## License
 
 [MIT](LICENSE)
