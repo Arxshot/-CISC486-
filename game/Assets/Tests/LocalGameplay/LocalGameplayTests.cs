@@ -33,7 +33,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator GamepadsJoinAndControlOnlyTheirOwnPlayer()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var first = InputSystem.AddDevice<Gamepad>();
         var second = InputSystem.AddDevice<Gamepad>();
         devices.Add(first);
@@ -89,7 +89,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator ArenaHasFittedKitCollidersAndThreeDamageableTargets()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         yield return null;
         var arena = Object.FindFirstObjectByType<LocalArena>();
         Assert.That(arena, Is.Not.Null);
@@ -125,7 +125,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator PerimeterKeepsPlayersOnTheArenaFloor()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var gamepad = InputSystem.AddDevice<Gamepad>();
         devices.Add(gamepad);
         yield return PressStart(gamepad);
@@ -141,7 +141,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator JoinLimitStopsAtFourPlayers()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         for (int i = 0; i < 5; i++)
         {
             var gamepad = InputSystem.AddDevice<Gamepad>();
@@ -154,7 +154,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator KeyboardAndMouseShareOnePlayer()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var keyboard = InputSystem.AddDevice<Keyboard>();
         var mouse = InputSystem.AddDevice<Mouse>();
         devices.Add(keyboard);
@@ -176,7 +176,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator GamepadCanFireAgainAfterReleasingTrigger()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var gamepad = InputSystem.AddDevice<Gamepad>();
         devices.Add(gamepad);
         yield return PressStart(gamepad);
@@ -193,7 +193,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator MouseCanFireAgainAfterReleasingButton()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var keyboard = InputSystem.AddDevice<Keyboard>();
         var mouse = InputSystem.AddDevice<Mouse>();
         devices.Add(keyboard);
@@ -391,7 +391,7 @@ public class LocalGameplayTests
 
     private IEnumerator JoinMousePlayer()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        yield return LoadSceneWithoutBots();
         var keyboard = InputSystem.AddDevice<Keyboard>();
         var mouse = InputSystem.AddDevice<Mouse>();
         devices.Add(keyboard);
@@ -586,6 +586,18 @@ public class LocalGameplayTests
         yield return null;
         InputSystem.QueueStateEvent(gamepad, new GamepadState());
         yield return null;
+    }
+
+    // These tests cover players and the arena; bots would move into shots and fire at players.
+    // LocalBotTests covers the bots.
+    private static IEnumerator LoadSceneWithoutBots()
+    {
+        yield return SceneManager.LoadSceneAsync("testScene");
+        foreach (var spawner in Object.FindObjectsByType<LocalBotSpawner>())
+        {
+            spawner.enabled = false;
+            spawner.DespawnBots();
+        }
     }
 
     private static IEnumerator ClearSession()

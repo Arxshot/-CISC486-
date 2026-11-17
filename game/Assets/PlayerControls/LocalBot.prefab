@@ -1,0 +1,184 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3108557200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3108557201}
+  - component: {fileID: 3108557202}
+  - component: {fileID: 3108557203}
+  - component: {fileID: 3108557204}
+  - component: {fileID: 3108557205}
+  - component: {fileID: 3108557206}
+  - component: {fileID: 3108557207}
+  m_Layer: 0
+  m_Name: LocalBot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3108557201
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &3108557202
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.4
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &3108557203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fca0665f8cf144fbac4f07bf58c7ca31, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LocalGameplay::LocalHealth
+  maxHealth: 100
+--- !u!114 &3108557204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a2e24a09e164bd78e7f1ccc1731c607, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LocalGameplay::LocalCombatant
+--- !u!114 &3108557205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f2a29fb5c94ed4921f46153a10cfec, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LocalGameplay::LocalBotWeapon
+  shotInterval: 0.75
+  damage: 25
+  range: 40
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  handgunVisual: {fileID: 658741186316241116, guid: adc82374461f9a94f939a30d252baf49, type: 3}
+  handgunLocalEulerAngles: {x: 0, y: -90, z: 0}
+  muzzleLocalPosition: {x: 0, y: 0.16021, z: 0.249}
+  shotSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
+  muzzleFlash: {fileID: 5128621479578589028, guid: d5370334ebfc741919094c943fa694ee, type: 3}
+  impactEffect: {fileID: 1000010355441670, guid: e0aa30b8adee8b44dac442776f34f5e7, type: 3}
+  tracerMaterial: {fileID: 2100000, guid: 5535a13cc0550489db8af368c5d7ba75, type: 2}
+--- !u!114 &3108557206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 778f2b6c415e433d806fbfb6db80c388, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LocalGameplay::LocalBot
+  moveSpeed: 4.5
+  wanderSpeedFactor: 0.55
+  strafeSpeedFactor: 0.8
+  acceleration: 20
+  turnSpeed: 540
+  gravity: -20
+  sightRange: 20
+  fieldOfView: 160
+  awarenessRadius: 3
+  memoryDuration: 4
+  reactionTime: 0.35
+  thinkInterval: 0.1
+  engageRange: 9
+  preferredRange: 6
+  strafeSwitchInterval: {x: 0.7, y: 1.8}
+  fireAngle: 12
+  aimError: 1.5
+  maxPredictionTime: 1
+  retreatHealthFraction: 0.25
+  hideOnHitChance: 0.5
+  hideDuration: {x: 0.8, y: 1.6}
+  peekDuration: 1.5
+  coverSearchRadius: 10
+  minCoverHeight: 1.6
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  whiskerLength: 1.2
+  whiskerAngle: 35
+--- !u!114 &3108557207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3108557200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da0b04c03f214defa63debe1016048e1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LocalGameplay::LocalPlayerVisuals
+  characterModel: {fileID: 919132149155446097, guid: 23846b5d0afca4720929341f9c9fa682, type: 3}
+  animationController: {fileID: 9100000, guid: 40db3173a05ae3242b1c182a09b0a183, type: 2}
+  bodyMaterials:
+  - {fileID: 2100000, guid: 138f64fd3a5cc8d46ad707e6a9c154d5, type: 2}
+  - {fileID: 2100000, guid: 8c65089c5c7dbd645998ed8b50e8ab69, type: 2}
+  - {fileID: 2100000, guid: 9668957b5a79ab04bb6aaef9d93109f3, type: 2}
+  - {fileID: 2100000, guid: 43714b68324cc2c409d534d9874f2a2b, type: 2}
+  armMaterials:
+  - {fileID: 2100000, guid: aedca5bdcee2ef8458f81cd6a19a6b47, type: 2}
+  - {fileID: 2100000, guid: b336e7bca312004468952eba3f52dab9, type: 2}
+  - {fileID: 2100000, guid: cd59790abdf4f244dac486f17d029764, type: 2}
+  - {fileID: 2100000, guid: 0dd60f3d67ac4be4f878e4e514a93124, type: 2}
+  legMaterials:
+  - {fileID: 2100000, guid: 4426c32d69bd7a647a0ae22c3bc8ca40, type: 2}
+  - {fileID: 2100000, guid: 9cdd6d3d02684f74c9d2a397f6a9e277, type: 2}
+  - {fileID: 2100000, guid: c89fb9d4383f71547b80b6d91db3f693, type: 2}
+  - {fileID: 2100000, guid: 7f447ca8d2cada9469697b930a6e5cd2, type: 2}
