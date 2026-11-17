@@ -1,0 +1,12 @@
+{
+  "name": "ApexArsenal.Editor",
+  "references": [
+    "ApexArsenal",
+    "LocalGameplay",
+    "Unity.InputSystem",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}
