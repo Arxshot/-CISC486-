@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 335b94f86e675c54ca8d3509d68589b6, type: 3}
+  m_Name: LabStyle
+  m_EditorClassIdentifier: ApexArsenal::LabStyle
+  panelWhite: {fileID: 2100000, guid: 496cb4125a1f8804085dc3f4ec7131eb, type: 2}
+  panelGrey: {fileID: 2100000, guid: d9a0f4792820c1c40bf910a4cfdd1ec4, type: 2}
+  floor: {fileID: 2100000, guid: f0275f6f4c86b694aa0054580f5b4759, type: 2}
+  floorLine: {fileID: 2100000, guid: 5960740eb35cb8646a4f0f661306bef4, type: 2}
+  ink: {fileID: 2100000, guid: 43dc114e49ca2434ca810f3f6c35748e, type: 2}
+  neonBlue: {fileID: 2100000, guid: 9d61ba9ffd48dab4bb685a8cfc1350ec, type: 2}
+  neonPink: {fileID: 2100000, guid: 4ca8967a7fd80254599c09cb30f1651f, type: 2}
+  laser: {fileID: 2100000, guid: 0fa493f3969ed5e41802b341522f55a6, type: 2}
+  glass: {fileID: 2100000, guid: 9838436846049f24a963e786154458e2, type: 2}
+  outline: {fileID: 2100000, guid: d7ff512517839f74da18bcd120e75cc3, type: 2}
+  playerRing: {fileID: 2100000, guid: 58617b8fc25fae94c97fdb38d6e2eab1, type: 2}
+  shadowBlob: {fileID: 2100000, guid: 835e55df76971eb42b490a132a519635, type: 2}
+  font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  logo: {fileID: 3907721248601932646, guid: 9286bbd93b45f0d46936cdf0199dfba2, type: 3}
+  coopButton:
+    idle: {fileID: -3648309358790104454, guid: e3b8ab42e50b5604e8e802b1ae9826d4, type: 3}
+    hover: {fileID: 616215429002353914, guid: 365d8a1ffaba60249b8db1e88a9dd0b0, type: 3}
+    pressed: {fileID: -7554744988377889652, guid: ba54d9f41e53a1548a915422795df535, type: 3}
+  pvpButton:
+    idle: {fileID: 4185106037976398989, guid: ae7693a8663f0dd4cb846a9f113c6732, type: 3}
+    hover: {fileID: -8377351290879861909, guid: be2c054846ff3f943a54d1e5d846f891, type: 3}
+    pressed: {fileID: -845399020492452687, guid: b88503067cb3bd64e9566c1de67d9f17, type: 3}
+  settingsButton:
+    idle: {fileID: -7941085776763758979, guid: d1d2e2227942b2e47addccb892005c34, type: 3}
+    hover: {fileID: 5746029874657029772, guid: 4db47651a02018a4088a5827eb48561a, type: 3}
+    pressed: {fileID: -584811314616291246, guid: 2ba5ff8f021452443a9b28b27ed9f990, type: 3}
+  exitButton:
+    idle: {fileID: 8764369263889164410, guid: 6a8e8b330e1e1d74ea7bf44595d9a09c, type: 3}
+    hover: {fileID: -380711059964876793, guid: c8c735b0ca7cef94bb6de0bb594ed4e4, type: 3}
+    pressed: {fileID: 5912089624622532744, guid: 9ca38f32465fe6c4583c7919dd9f32d7, type: 3}
+  coopPlayerPrefab: {fileID: 1152291599031819603, guid: 58c7d624f6a7e044c8478f5a1431ecaf, type: 3}
+  pvpPlayerPrefab: {fileID: 7775116222120247118, guid: a989827fb77da3d44ae802e29ba25b2f, type: 3}
