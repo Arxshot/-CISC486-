@@ -210,7 +210,7 @@ public class LocalPlayerShooting : MonoBehaviour
         var health = path.Collider.GetComponentInParent<LocalHealth>();
         bool isPlayer = path.Collider.GetComponentInParent<PlayerInput>() != null;
         if (health != null && (friendlyFire || !isPlayer))
-            health.TakeDamage(damage);
+            health.TakeDamage(damage, gameObject);
 
         if (impactEffect != null)
             Destroy(Instantiate(impactEffect, path.End, Quaternion.LookRotation(path.Normal)), 2f);
