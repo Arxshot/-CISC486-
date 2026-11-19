@@ -4,16 +4,29 @@ public sealed class LocalShotTrigger
     private bool held;
     private double nextShotTime;
 
-    public bool SetPressed(bool pressed, double time, double interval)
+    public bool SetPressed(bool pressed, double time, double interval, bool canFire = true)
     {
         bool justPressed = pressed && !held;
         held = pressed;
-        if (!justPressed || time < nextShotTime)
+        if (!justPressed || !canFire || time < nextShotTime)
             return false;
 
         nextShotTime = time + System.Math.Max(0, interval);
         return true;
     }
 
-    public void Release() => held = false;
+    public bool TryRepeat(double time, double interval)
+    {
+        if (!held || time < nextShotTime)
+            return false;
+
+        nextShotTime = time + System.Math.Max(0, interval);
+        return true;
+    }
+
+    public void Release()
+    {
+        held = false;
+        nextShotTime = 0;
+    }
 }

@@ -69,7 +69,7 @@ public class LocalGameplayTests
         Assert.That(skinOne, Is.Not.Null);
         Assert.That(skinTwo, Is.Not.Null);
         Assert.That(skinOne.sharedMaterials[0], Is.Not.SameAs(skinTwo.sharedMaterials[0]));
-        Assert.That(Vector3.Distance(one.transform.Find("Handgun").position, oneVisual.Hand.position), Is.LessThan(0.01f));
+        Assert.That(Vector3.Distance(one.transform.Find("WeaponMount").position, oneVisual.Hand.position), Is.LessThan(0.01f));
 
         // Rejoining with an already paired controller must not duplicate its player.
         yield return PressStart(first);
@@ -174,6 +174,72 @@ public class LocalGameplayTests
     }
 
     [UnityTest]
+    public IEnumerator KeyboardNumberKeysSelectTheThreeWeapons()
+    {
+        yield return JoinMousePlayer();
+        var shooting = mousePlayer.GetComponent<LocalPlayerShooting>();
+        var mount = mousePlayer.transform.Find("WeaponMount");
+        var muzzle = mount.Find("Muzzle");
+        Keyboard keyboard = null;
+        foreach (var device in mousePlayer.devices)
+            if (device is Keyboard paired)
+                keyboard = paired;
+        Assert.That(keyboard, Is.Not.Null);
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Pistol));
+
+        InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Digit1));
+        yield return null;
+        yield return null;
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Shotgun));
+        Assert.That(mount.Find("Shotgun"), Is.Not.Null);
+        Assert.That(mount.Find("Pistol"), Is.Null);
+        Assert.That(mount.Find("Muzzle"), Is.SameAs(muzzle));
+
+        InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+        yield return null;
+        InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Digit2));
+        yield return null;
+        yield return null;
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Rifle));
+        Assert.That(mount.Find("Rifle"), Is.Not.Null);
+        Assert.That(mount.Find("Shotgun"), Is.Null);
+        Assert.That(mount.Find("Muzzle"), Is.SameAs(muzzle));
+
+        InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+        yield return null;
+        InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Digit3));
+        yield return null;
+        yield return null;
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Pistol));
+        Assert.That(mount.Find("Pistol"), Is.Not.Null);
+        Assert.That(mount.Find("Rifle"), Is.Null);
+        Assert.That(mount.Find("Muzzle"), Is.SameAs(muzzle));
+    }
+
+    [UnityTest]
+    public IEnumerator GamepadButtonCyclesWeaponsOnlyForItsPlayer()
+    {
+        yield return LoadSceneWithoutBots();
+        var first = InputSystem.AddDevice<Gamepad>();
+        var second = InputSystem.AddDevice<Gamepad>();
+        devices.Add(first);
+        devices.Add(second);
+        yield return PressStart(first);
+        yield return PressStart(second);
+        var firstPlayer = PlayerInput.FindFirstPairedToDevice(first);
+        var secondPlayer = PlayerInput.FindFirstPairedToDevice(second);
+        var shooting = firstPlayer.GetComponent<LocalPlayerShooting>();
+
+        yield return PressCycleWeapon(first);
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Shotgun));
+        Assert.That(secondPlayer.GetComponent<LocalPlayerShooting>().CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Pistol));
+        yield return PressCycleWeapon(first);
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Rifle));
+        yield return PressCycleWeapon(first);
+        Assert.That(shooting.CurrentWeapon, Is.EqualTo(LocalPlayerShooting.WeaponSlot.Pistol));
+    }
+
+    [UnityTest]
     public IEnumerator GamepadCanFireAgainAfterReleasingTrigger()
     {
         yield return LoadSceneWithoutBots();
@@ -184,8 +250,8 @@ public class LocalGameplayTests
         Assert.That(player, Is.Not.Null);
 
         player.transform.rotation = Quaternion.Euler(0f, 40f, 0f);
-        var mount = player.transform.Find("Handgun");
-        Assert.That(Vector3.Dot(mount.GetChild(0).right, player.transform.forward), Is.EqualTo(1f).Within(0.001f));
+        var mount = player.transform.Find("WeaponMount");
+        Assert.That(Vector3.Dot(mount.Find("Pistol").right, player.transform.forward), Is.EqualTo(1f).Within(0.001f));
         Assert.That(Vector3.Dot(mount.Find("Muzzle").forward, player.transform.forward), Is.EqualTo(1f).Within(0.001f));
         yield return CheckRepeatedFire(player, gamepad);
     }
@@ -219,7 +285,7 @@ public class LocalGameplayTests
         player.GetComponent<CharacterController>().enabled = false;
         player.transform.SetPositionAndRotation(new Vector3(100f, 0f, 100f), Quaternion.identity);
         yield return null; // Let the animated hand and weapon catch up to the teleported player.
-        var muzzle = player.transform.Find("Handgun/Muzzle");
+        var muzzle = player.transform.Find("WeaponMount/Muzzle");
         var target = CreateTarget(muzzle.position + player.transform.forward * 4f - new Vector3(100f, 0f, 100f));
         Physics.SyncTransforms();
         QueueFire(device, true);
@@ -238,6 +304,18 @@ public class LocalGameplayTests
         Assert.That(target.CurrentHealth, Is.EqualTo(50f), "A second press must fire another shot.");
         QueueFire(device, false);
         yield return null;
+
+        var shooting = player.GetComponent<LocalPlayerShooting>();
+        Assert.That(shooting.RoundsLoaded, Is.EqualTo(10));
+        if (device is Gamepad gamepad)
+            InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.West));
+        else
+            foreach (var paired in player.devices)
+                if (paired is Keyboard keyboard)
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.R));
+        yield return null;
+        yield return null;
+        Assert.That(shooting.IsReloading, Is.True);
     }
 
     private static void QueueFire(InputDevice device, bool pressed)
@@ -246,6 +324,69 @@ public class LocalGameplayTests
             InputSystem.QueueStateEvent(gamepad, new GamepadState { rightTrigger = pressed ? 1f : 0f });
         else if (device is Mouse mouse)
             InputSystem.QueueStateEvent(mouse, new MouseState { buttons = (ushort)(pressed ? 1 : 0) });
+    }
+
+    [UnityTest]
+    public IEnumerator ShotgunFiresOnePelletBurstAndRifleRepeatsUntilReleased()
+    {
+        yield return ClearSession();
+        var shooter = CreateShooter();
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Shotgun);
+        Vector3 targetPosition = shooter.AimOrigin - shooter.transform.position + Vector3.forward * 4f;
+        var target = CreateTarget(targetPosition);
+        target.transform.localScale = Vector3.one * 2f;
+        Physics.SyncTransforms();
+
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+        Assert.That(target.CurrentHealth, Is.EqualTo(52f), "All eight pellets should hit the nearby target.");
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(7), "The burst uses one shell.");
+        yield return new WaitForSeconds(0.9f);
+        Assert.That(target.CurrentHealth, Is.EqualTo(52f), "Holding fire should only fire one shotgun burst.");
+        shooter.SetFirePressed(false);
+
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Rifle);
+        var rifleTarget = CreateTarget(targetPosition + Vector3.right * 3f);
+        shooter.transform.position += Vector3.right * 3f;
+        Physics.SyncTransforms();
+
+        shooter.SetFirePressed(true);
+        yield return new WaitForSeconds(0.35f);
+        shooter.SetFirePressed(false);
+        Assert.That(rifleTarget.CurrentHealth, Is.LessThan(90f), "Holding fire should produce multiple rifle hits.");
+        float healthOnRelease = rifleTarget.CurrentHealth;
+        yield return new WaitForSeconds(0.25f);
+        Assert.That(rifleTarget.CurrentHealth, Is.EqualTo(healthOnRelease));
+    }
+
+    [UnityTest]
+    public IEnumerator ReloadBlocksFireAndSwappingPreservesPartialMagazines()
+    {
+        var shooter = CreateShooter();
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+        shooter.SetFirePressed(false);
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(11));
+        shooter.StartReload();
+        yield return new WaitForSeconds(0.6f); // Past the pistol firing cooldown, inside its reload.
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+        Assert.That(shooter.IsReloading, Is.True);
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(11));
+
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Rifle);
+        Assert.That(shooter.IsReloading, Is.False);
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(30));
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Pistol);
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(11));
+        shooter.StartReload();
+        yield return new WaitForSeconds(2.1f);
+        yield return null;
+        Assert.That(shooter.IsReloading, Is.False);
+        Assert.That(shooter.RoundsLoaded, Is.EqualTo(12));
     }
 
     [UnityTest]
@@ -474,6 +615,62 @@ public class LocalGameplayTests
     }
 
     [UnityTest]
+    public IEnumerator ShotgunDealsDamageForEachPelletThatHits()
+    {
+        yield return ClearSession();
+        var shooter = CreateShooter();
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Shotgun);
+        var target = CreateTarget(new Vector3(0.35f, 1f, 4f));
+        target.transform.localScale = Vector3.one * 2f;
+        Physics.SyncTransforms();
+
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+
+        Assert.That(target.CurrentHealth, Is.EqualTo(52f));
+    }
+
+    [UnityTest]
+    public IEnumerator RifleRepeatsShotsWhileFireIsHeld()
+    {
+        yield return ClearSession();
+        var shooter = CreateShooter();
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Rifle);
+        var target = CreateTarget(new Vector3(0.35f, 1f, 4f));
+        Physics.SyncTransforms();
+
+        shooter.SetFirePressed(true);
+        yield return new WaitForSeconds(0.45f);
+        shooter.SetFirePressed(false);
+
+        Assert.That(target.CurrentHealth, Is.LessThanOrEqualTo(70f));
+        Assert.That(target.CurrentHealth, Is.GreaterThan(0f));
+    }
+
+    [UnityTest]
+    public IEnumerator SwitchingWeaponsAllowsAnImmediateShot()
+    {
+        yield return ClearSession();
+        var shooter = CreateShooter();
+        var target = CreateTarget(new Vector3(0.35f, 1f, 4f));
+        target.transform.localScale = Vector3.one * 2f;
+        Physics.SyncTransforms();
+
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+        Assert.That(target.CurrentHealth, Is.EqualTo(75f));
+
+        shooter.SelectWeapon(LocalPlayerShooting.WeaponSlot.Shotgun);
+        shooter.SetFirePressed(true);
+        yield return null;
+        yield return null;
+
+        Assert.That(target.CurrentHealth, Is.EqualTo(27f));
+    }
+
+    [UnityTest]
     public IEnumerator WallBetweenChestAndMuzzleBlocksDamage()
     {
         yield return ClearSession();
@@ -582,6 +779,15 @@ public class LocalGameplayTests
     private static IEnumerator PressStart(Gamepad gamepad)
     {
         InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.Start));
+        yield return null;
+        yield return null;
+        InputSystem.QueueStateEvent(gamepad, new GamepadState());
+        yield return null;
+    }
+
+    private static IEnumerator PressCycleWeapon(Gamepad gamepad)
+    {
+        InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.North));
         yield return null;
         yield return null;
         InputSystem.QueueStateEvent(gamepad, new GamepadState());

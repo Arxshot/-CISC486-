@@ -60,7 +60,7 @@ public class MainMenuScreen : MonoBehaviour
         UIFactory.Place((RectTransform)settings.transform, new Vector2(0.5f, 0.5f), new Vector2(0f, -40f), new Vector2(900f, 720f));
         settings.gameObject.SetActive(false);
 
-        var footer = UIFactory.Label("Controls", root, "MOVE  WASD / L-STICK      AIM  MOUSE / R-STICK      SHOOT  CLICK / RT      DASH  SHIFT / B      PAUSE  ESC / START", 24f, LabPalette.PanelWhite, TextAlignmentOptions.Center, 0.25f);
+        var footer = UIFactory.Label("Controls", root, "MOVE  WASD / L-STICK    AIM  MOUSE / R-STICK    SHOOT  CLICK / RT    RELOAD  R / X (SQUARE)    DASH  SHIFT / B    PAUSE  ESC / START", 24f, LabPalette.PanelWhite, TextAlignmentOptions.Center, 0.25f);
         UIFactory.Place(footer.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(1800f, 40f));
 
         back = new InputAction("Back", InputActionType.Button);

@@ -1,5 +1,5 @@
 {
   "name": "LocalGameplay",
-  "references": ["Unity.InputSystem"],
+  "references": ["Unity.InputSystem", "Blocks.Gameplay.Shooter"],
   "autoReferenced": true
 }

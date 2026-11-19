@@ -18,6 +18,8 @@ public class MatchHud : MonoBehaviour
     private TextMeshProUGUI statusText;
     private TextMeshProUGUI eventsText;
     private RectTransform cardRow;
+    private const float CardWidth = 380f;
+    private const float CardSpacing = 30f;
     private readonly List<PlayerCard> cards = new();
     private TextMeshProUGUI announcer;
     private float announceTimer;
@@ -115,9 +117,9 @@ public class MatchHud : MonoBehaviour
         UIFactory.Place(eventsText.rectTransform, new Vector2(1f, 1f), new Vector2(-36f, -30f), new Vector2(520f, 120f));
 
         cardRow = UIFactory.Rect("Players", root);
-        UIFactory.Place(cardRow, new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(1800f, 150f));
+        UIFactory.Place(cardRow, new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(1800f, 170f));
         var cardLayout = cardRow.gameObject.AddComponent<HorizontalLayoutGroup>();
-        cardLayout.spacing = 30f;
+        cardLayout.spacing = CardSpacing;
         cardLayout.childAlignment = TextAnchor.LowerCenter;
         cardLayout.childControlWidth = cardLayout.childControlHeight = false;
         cardLayout.childForceExpandWidth = cardLayout.childForceExpandHeight = false;
@@ -141,6 +143,7 @@ public class MatchHud : MonoBehaviour
             UpdateStatus(director);
 
         SyncCards(director.Players);
+        PositionHealthCards();
         foreach (var card in cards)
             UpdateCard(card);
 
@@ -208,7 +211,7 @@ public class MatchHud : MonoBehaviour
             int index = player.playerIndex;
             var card = new PlayerCard { Player = player, Health = player.GetComponent<LocalHealth>(), Dash = player.GetComponent<PlayerDash>(), PowerUps = player.GetComponent<PowerUpReceiver>() };
             card.MaxHealth = card.Health != null ? Mathf.Max(1f, card.Health.CurrentHealth) : 1f;
-            card.Root = UIFactory.Panel($"P{index + 1}", cardRow, new Vector2(380f, 130f), LabPalette.PanelWhite, 24, 5f);
+            card.Root = UIFactory.Panel($"P{index + 1}", cardRow, new Vector2(CardWidth, 130f), LabPalette.PanelWhite, 24, 5f);
             card.Body = card.Root.Find("Body").GetComponent<Image>();
             var chip = UIFactory.Image("Chip", card.Body.transform, LabPalette.Player(index), RoundedSprite.Get(20));
             UIFactory.Place(chip.rectTransform, new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(96f, 96f));
@@ -222,6 +225,20 @@ public class MatchHud : MonoBehaviour
             UIFactory.Motion(card.Root, UIMotion.Kind.PopIn);
             cards.Add(card);
         }
+    }
+
+    private void PositionHealthCards()
+    {
+        if (cards.Count == 0)
+            return;
+
+        float screenWidth = ((RectTransform)cardRow.parent).rect.width;
+        float groupWidth = cards.Count * CardWidth + (cards.Count - 1) * CardSpacing;
+        float rightEdge = screenWidth - AmmoHud.PlateWidth - 2f * AmmoHud.Margin;
+        float scale = Mathf.Clamp01((rightEdge - AmmoHud.Margin) / groupWidth);
+        float center = Mathf.Min(screenWidth / 2f, rightEdge - groupWidth * scale / 2f);
+        cardRow.localScale = new Vector3(scale, scale, 1f);
+        cardRow.anchoredPosition = new Vector2(center - screenWidth / 2f, 24f);
     }
 
     private static RectTransform Bar(Transform parent, Vector2 position, Vector2 size, Color color)

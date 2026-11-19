@@ -50,6 +50,7 @@ public class ArenaBootstrap : MonoBehaviour
         var director = new GameObject("Match Director").AddComponent<MatchDirector>();
         director.Initialize(session, builder, crates);
         MatchHud.Create();
+        gameObject.AddComponent<AmmoHud>();
         PauseOverlay.Create(session);
     }
 }

@@ -80,7 +80,7 @@ public class LocalCoopSession : MonoBehaviour
         if (manager == null)
             return;
         GUI.Label(new Rect(15, 15, 850, 25), $"Players: {manager.playerCount}/{maxPlayers} | Enter: join with keyboard & mouse | Start: join with gamepad");
-        GUI.Label(new Rect(15, 40, 850, 25), "Move: WASD / left stick | Aim: mouse / right stick | Shoot: left click / right trigger");
+        GUI.Label(new Rect(15, 40, 850, 25), "Move: WASD / left stick | Aim: mouse / right stick | Shoot: left click / right trigger | Reload: R / X (Square)");
     }
 
     private void OnDestroy()

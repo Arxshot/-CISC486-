@@ -41,6 +41,7 @@ public class LocalPlayerVisuals : MonoBehaviour
         animator.fireEvents = false; // Template events expect its networked animator and sound system.
         animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         animator.SetBool("IsAiming", true);
+        animator.SetFloat("ReloadSpeed", 1f);
         animator.SetBool("Grounded", true);
         animator.SetInteger("WeaponTypeID", 1);
         hand = animator.GetBoneTransform(HumanBodyBones.RightHand);
@@ -94,6 +95,7 @@ public class LocalPlayerVisuals : MonoBehaviour
         velocity.y = 0f;
         Vector3 localVelocity = transform.InverseTransformDirection(velocity);
         float speed = velocity.magnitude;
+        animator.SetBool("IsReloading", shooting != null && shooting.IsReloading);
         animator.SetFloat("Speed", speed);
         animator.SetFloat("MotionSpeed", Mathf.Clamp01(speed / 6f));
         animator.SetFloat("StrafeX", localVelocity.x / 6f, 0.1f, Time.deltaTime);
