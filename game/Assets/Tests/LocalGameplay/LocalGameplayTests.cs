@@ -13,10 +13,37 @@ public class LocalGameplayTests
     private readonly List<InputDevice> devices = new List<InputDevice>();
     private PlayerInput mousePlayer;
     private Mouse aimingMouse;
+    private InputSettings.BackgroundBehavior savedBackgroundBehavior;
+    private InputSettings.EditorInputBehaviorInPlayMode savedEditorInputBehavior;
+
+    // By default the Input System drops keyboard and mouse input while the app or Game view is
+    // unfocused (gamepads still work), so keyboard tests fail in batch mode or with the Editor
+    // in the background. Let simulated input through regardless of focus.
+    [SetUp]
+    public void SetUp()
+    {
+        savedBackgroundBehavior = InputSystem.settings.backgroundBehavior;
+        savedEditorInputBehavior = InputSystem.settings.editorInputBehaviorInPlayMode;
+        InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+        InputSystem.settings.editorInputBehaviorInPlayMode =
+            InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+        // Devices already disabled for lacking focus stay disabled after the setting changes, and
+        // a keyboard join pairs whichever mouse comes first, which may be the real one.
+        // Real devices outlive each test, so clear buttons a previous test left held; otherwise
+        // the next press is not a state change and button actions never start.
+        foreach (var device in InputSystem.devices)
+        {
+            if (!device.enabled)
+                InputSystem.EnableDevice(device);
+            InputSystem.ResetDevice(device);
+        }
+    }
 
     [UnityTearDown]
     public IEnumerator TearDown()
     {
+        InputSystem.settings.backgroundBehavior = savedBackgroundBehavior;
+        InputSystem.settings.editorInputBehaviorInPlayMode = savedEditorInputBehavior;
         for (int i = PlayerInput.all.Count - 1; i >= 0; i--)
             Object.Destroy(PlayerInput.all[i].gameObject);
         foreach (var obj in objects)
@@ -363,6 +390,7 @@ public class LocalGameplayTests
     [UnityTest]
     public IEnumerator ReloadBlocksFireAndSwappingPreservesPartialMagazines()
     {
+        yield return ClearSession();
         var shooter = CreateShooter();
         shooter.SetFirePressed(true);
         yield return null;
@@ -796,9 +824,18 @@ public class LocalGameplayTests
 
     // These tests cover players and the arena; bots would move into shots and fire at players.
     // LocalBotTests covers the bots.
+    private const string TestScenePath = "Assets/Scenes/testScene.unity";
+
     private static IEnumerator LoadSceneWithoutBots()
     {
-        yield return SceneManager.LoadSceneAsync("testScene");
+        // testScene is disabled in the build profile so builds start at the Apex Arsenal menu,
+        // so load it by path rather than by build index/name.
+#if UNITY_EDITOR
+        yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+            TestScenePath, new LoadSceneParameters(LoadSceneMode.Single));
+#else
+        yield return SceneManager.LoadSceneAsync(TestScenePath);
+#endif
         foreach (var spawner in Object.FindObjectsByType<LocalBotSpawner>())
         {
             spawner.enabled = false;

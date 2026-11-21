@@ -55,11 +55,14 @@ public class LocalCoopSession : MonoBehaviour
     {
         player.name = $"Player {player.playerIndex + 1}";
         player.neverAutoSwitchControlSchemes = true;
+        // The manager reports every enabled PlayerInput, not only ones it spawned from playerPrefab.
         var controller = player.GetComponent<CharacterController>();
-        controller.enabled = false;
+        if (controller != null)
+            controller.enabled = false;
         player.transform.position = transform.position + spawnOrigin +
             new Vector3(player.playerIndex % 2, 0f, -(player.playerIndex / 2)) * spawnSpacing;
-        controller.enabled = true;
+        if (controller != null)
+            controller.enabled = true;
 
         var visuals = player.GetComponent<LocalPlayerVisuals>();
         if (visuals != null)
