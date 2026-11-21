@@ -1,6 +1,6 @@
 {
   "name": "LocalGameplay.PlayModeTests",
-  "references": ["LocalGameplay", "Unity.InputSystem"],
+  "references": ["LocalGameplay", "Unity.InputSystem", "UnityEngine.UI", "ApexArsenal"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false
 }
