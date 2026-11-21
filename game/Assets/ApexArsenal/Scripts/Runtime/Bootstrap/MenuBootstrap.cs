@@ -41,6 +41,11 @@ public class MenuBootstrap : MonoBehaviour
         int count = Mathf.Min(3, builder.TurretSockets.Count);
         for (int i = 0; i < count; i++)
             SentryTurret.Create(style, builder.Root, builder.TurretSockets[i * 2 % builder.TurretSockets.Count], 0);
+        // And a patrol of lab bots wandering the chamber (same team, so they leave each other alone).
+        // They live under the generated chamber, so previewing another one clears them.
+        if (style.botPrefab != null)
+            for (int i = 0; i < Mathf.Min(3, builder.PvpSpawns.Count); i++)
+                LabBots.Spawn(style, builder.Root, builder.PvpSpawns[i], builder.transform.position, 0);
     }
 
     private void LateUpdate()

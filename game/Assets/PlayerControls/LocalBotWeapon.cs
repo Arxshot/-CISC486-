@@ -29,9 +29,17 @@ public class LocalBotWeapon : MonoBehaviour
     public Vector3 MuzzlePosition => muzzle.position;
     public bool IsReady => Time.time >= nextShotTime;
     public float Range => range;
+    public float Damage
+    {
+        get => damage;
+        set => damage = Mathf.Max(0f, value);
+    }
+
+    private LocalCombatant owner;
 
     private void Awake()
     {
+        owner = GetComponent<LocalCombatant>();
         weaponMount = new GameObject("Handgun").transform;
         weaponMount.SetParent(transform, false);
         weaponMount.localPosition = new Vector3(0.35f, 1f, 0.4f);
@@ -114,7 +122,10 @@ public class LocalBotWeapon : MonoBehaviour
             return;
 
         var health = hit.GetComponentInParent<LocalHealth>();
-        if (health != null && !health.transform.IsChildOf(transform))
+        // No friendly fire: a teammate standing in the line of fire soaks the shot unharmed.
+        var victim = health != null ? health.GetComponent<LocalCombatant>() : null;
+        bool ally = victim != null && owner != null && !owner.IsHostileTo(victim);
+        if (health != null && !health.transform.IsChildOf(transform) && !ally)
             health.TakeDamage(damage, gameObject);
         if (impactEffect != null)
             Destroy(Instantiate(impactEffect, end, Quaternion.LookRotation(normal)), 2f);

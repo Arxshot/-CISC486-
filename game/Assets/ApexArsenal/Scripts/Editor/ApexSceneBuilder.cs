@@ -20,6 +20,7 @@ public static class ApexSceneBuilder
     private const string StylePath = Generated + "/LabStyle.asset";
     private const string MenuArtFolder = "Assets/UI_Graphics";
     private const string BasePlayerPath = "Assets/PlayerControls/LocalPlayer.prefab";
+    private const string BotPrefabPath = "Assets/PlayerControls/LocalBot.prefab";
     private const string FontPath = "Assets/Core/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
 
     public static string MenuScenePath => $"{ScenesFolder}/{SceneFlow.MainMenuScene}.unity";
@@ -68,6 +69,7 @@ public static class ApexSceneBuilder
         LoadMenuArt(style);
         style.coopPlayerPrefab = BuildPlayerVariant("ApexPlayer_Coop", friendlyFire: false);
         style.pvpPlayerPrefab = BuildPlayerVariant("ApexPlayer_PvP", friendlyFire: true);
+        style.botPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BotPrefabPath);
         EditorUtility.SetDirty(style);
         AssetDatabase.SaveAssets();
 

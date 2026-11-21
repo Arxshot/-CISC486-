@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // The main game loop: Lobby (join) -> Countdown -> Playing -> Results.
-// Co-op: 1-4 players clear three waves of sentry turrets; everyone down is a defeat.
+// Co-op: 1-4 players clear three waves of lab bots and sentry turrets; everyone down is a defeat.
 // PvP: 2-4 player free-for-all; last one standing wins.
 public class MatchDirector : MonoBehaviour
 {
@@ -18,11 +18,15 @@ public class MatchDirector : MonoBehaviour
     [SerializeField] private float lobbyAutoStart = 6f;
     [SerializeField] private int waves = 3;
     [SerializeField] private float waveBreak = 3f;
+    [SerializeField] private int maxBotsPerWave = 6;
+    [Tooltip("Bots never spawn closer than this to a player.")]
+    [SerializeField] private float botSpawnClearance = 8f;
 
     private ArenaSession session;
     private ArenaBuilder arena;
     private CrateSpawner crates;
     private readonly List<SentryTurret> turrets = new();
+    private readonly List<LocalBot> bots = new();
     private float timer;
     private float lobbyTimer;
     private int countdownStep;
@@ -46,6 +50,19 @@ public class MatchDirector : MonoBehaviour
             return alive;
         }
     }
+    public int BotsLeft
+    {
+        get
+        {
+            int alive = 0;
+            foreach (var bot in bots)
+                if (LabBots.Alive(bot))
+                    alive++;
+            return alive;
+        }
+    }
+    public int EnemiesLeft => TurretsLeft + BotsLeft;
+    public IReadOnlyList<LocalBot> Bots => bots;
     public IReadOnlyList<PlayerInput> Players => session.Players;
 
     public static MatchDirector Instance { get; private set; }
@@ -182,7 +199,7 @@ public class MatchDirector : MonoBehaviour
             }
         }
 
-        int enemiesLeft = MatchSettings.EnemiesEnabled ? TurretsLeft : 0;
+        int enemiesLeft = MatchSettings.EnemiesEnabled ? EnemiesLeft : 0;
         if (MatchSettings.EnemiesEnabled && enemiesLeft == 0 && !waveQueued && Wave < waves)
         {
             waveQueued = true;
@@ -204,17 +221,57 @@ public class MatchDirector : MonoBehaviour
     {
         Wave = wave;
         int playerCount = Mathf.Max(1, session.Players.Count);
-        int count = Mathf.Min(arena.TurretSockets.Count, 2 + wave + playerCount);
+        var style = LabStyle.Active;
+        bool withBots = style != null && style.botPrefab != null;
+        // Bots take over part of the old all-turret wave, so the total stays about the same.
+        int turretCount = Mathf.Min(arena.TurretSockets.Count, withBots ? 1 + wave : 2 + wave + playerCount);
+        int botCount = withBots ? Mathf.Min(maxBotsPerWave, wave + playerCount) : 0;
         var sockets = new List<Vector3>(arena.TurretSockets);
-        for (int i = sockets.Count - 1; i > 0; i--)
+        Shuffle(sockets);
+        turrets.RemoveAll(t => t == null || !t.Alive);
+        for (int i = 0; i < turretCount; i++)
+            turrets.Add(SentryTurret.Create(style, arena.Root, sockets[i], wave));
+
+        bots.RemoveAll(b => !LabBots.Alive(b));
+        var botSpawns = BotSpawnPoints(sockets.GetRange(turretCount, sockets.Count - turretCount));
+        for (int i = 0; i < botCount && botSpawns.Count > 0; i++)
+        {
+            // Reused points get a small offset so bots don't spawn inside each other.
+            Vector3 spawn = botSpawns[i % botSpawns.Count];
+            if (i >= botSpawns.Count)
+                spawn += new Vector3((float)socketRandom.NextDouble() - 0.5f, 0f, (float)socketRandom.NextDouble() - 0.5f) * 1.2f;
+            var bot = LabBots.Spawn(style, arena.Root, spawn, arena.transform.position, wave);
+            if (bot != null)
+                bots.Add(bot);
+        }
+        MatchHud.Announce(wave == waves ? "FINAL WAVE!" : $"WAVE {wave}", LabPalette.NeonPink, 1.3f);
+    }
+
+    // Free turret sockets plus the far PvP corners, keeping clear of players so nobody is spawn-camped.
+    private List<Vector3> BotSpawnPoints(List<Vector3> freeSockets)
+    {
+        var candidates = new List<Vector3>(freeSockets);
+        candidates.AddRange(arena.PvpSpawns);
+        var clear = candidates.FindAll(point =>
+        {
+            foreach (var player in session.Players)
+                if (player != null && player.isActiveAndEnabled
+                    && Vector3.Distance(player.transform.position, point) < botSpawnClearance)
+                    return false;
+            return true;
+        });
+        var result = clear.Count > 0 ? clear : candidates;
+        Shuffle(result);
+        return result;
+    }
+
+    private void Shuffle(List<Vector3> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
         {
             int j = socketRandom.Next(i + 1);
-            (sockets[i], sockets[j]) = (sockets[j], sockets[i]);
+            (list[i], list[j]) = (list[j], list[i]);
         }
-        turrets.RemoveAll(t => t == null || !t.Alive);
-        for (int i = 0; i < count; i++)
-            turrets.Add(SentryTurret.Create(LabStyle.Active, arena.Root, sockets[i], wave));
-        MatchHud.Announce(wave == waves ? "FINAL WAVE!" : $"WAVE {wave}", LabPalette.NeonPink, 1.3f);
     }
 
     private void End(MatchOutcome outcome, int winner)
@@ -226,7 +283,15 @@ public class MatchDirector : MonoBehaviour
         bool good = outcome == MatchOutcome.Victory || outcome == MatchOutcome.Winner;
         AudioDirector.Play(good ? Sfx.Victory : Sfx.Defeat);
         AudioDirector.Instance.SetMusicPitch(good ? 1.05f : 0.85f);
-        // Freeze the remaining players; the results screen takes over input via the UI.
+        // Freeze the remaining bots and players; the results screen takes over input via the UI.
+        foreach (var bot in bots)
+            if (LabBots.Alive(bot))
+            {
+                bot.enabled = false;
+                var weapon = bot.GetComponent<LocalBotWeapon>();
+                if (weapon != null)
+                    weapon.ClearAim();
+            }
         foreach (var player in session.Players)
             if (player != null && player.isActiveAndEnabled)
                 player.DeactivateInput();

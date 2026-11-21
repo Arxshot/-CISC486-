@@ -42,6 +42,17 @@ public class LocalCombatant : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    // Free-for-all: everyone else is an enemy.
-    public bool IsHostileTo(LocalCombatant other) => other != null && other != this;
+    public const int FreeForAll = 0;
+
+    [Tooltip("0 = free-for-all (everyone else is an enemy). Combatants on the same non-zero team are allies.")]
+    [SerializeField] private int team = FreeForAll;
+
+    public int Team
+    {
+        get => team;
+        set => team = value;
+    }
+
+    public bool IsHostileTo(LocalCombatant other) =>
+        other != null && other != this && (team == FreeForAll || other.team != team);
 }

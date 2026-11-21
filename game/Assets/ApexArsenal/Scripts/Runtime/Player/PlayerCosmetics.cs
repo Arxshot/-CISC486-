@@ -5,9 +5,12 @@ using UnityEngine.InputSystem;
 // Cartoon upgrade for Pierre's player, added by my prefab variant without changing his files:
 // ink outline around the character, a player-coloured floor ring, a blob shadow, a "P1" tag with an
 // overhead health bar, a flash when hit and a "poof" when eliminated.
-[RequireComponent(typeof(PlayerInput))]
+// Also dresses the lab's AI bots (no PlayerInput): call Configure before the first frame.
 public class PlayerCosmetics : MonoBehaviour
 {
+    private Color? customColor;
+    private string customTag;
+
     private PlayerInput input;
     private LocalHealth health;
     private Transform overhead;
@@ -20,7 +23,13 @@ public class PlayerCosmetics : MonoBehaviour
     private float flash;
     private bool quitting;
 
-    public Color Color => LabPalette.Player(input != null ? input.playerIndex : 0);
+    public Color Color => customColor ?? LabPalette.Player(input != null ? input.playerIndex : 0);
+
+    public void Configure(Color color, string tag)
+    {
+        customColor = color;
+        customTag = tag;
+    }
 
     private void Awake()
     {
@@ -69,7 +78,7 @@ public class PlayerCosmetics : MonoBehaviour
         tagLabel.transform.localPosition = new Vector3(0f, 0.38f, 0f);
         if (style.font != null)
             tagLabel.font = style.font;
-        tagLabel.text = $"P{input.playerIndex + 1}";
+        tagLabel.text = customTag ?? $"P{(input != null ? input.playerIndex : 0) + 1}";
         tagLabel.fontSize = 5f;
         tagLabel.fontStyle = FontStyles.Bold;
         tagLabel.alignment = TextAlignmentOptions.Center;
@@ -126,9 +135,13 @@ public class PlayerCosmetics : MonoBehaviour
             if (current < lastHealth)
             {
                 flash = 1f;
-                AudioDirector.PlayAt(Sfx.GateWarn, transform.position, 0.5f);
-                if (ArenaCamera.Instance != null)
-                    ArenaCamera.Instance.Shake(0.25f);
+                // Only players getting hurt shakes the camera; hitting a bot shouldn't.
+                if (input != null)
+                {
+                    AudioDirector.PlayAt(Sfx.GateWarn, transform.position, 0.5f);
+                    if (ArenaCamera.Instance != null)
+                        ArenaCamera.Instance.Shake(0.25f);
+                }
             }
             lastHealth = current;
             float fraction = Mathf.Clamp01(current / maxHealth);
@@ -156,7 +169,7 @@ public class PlayerCosmetics : MonoBehaviour
         Poof.Spawn(transform.position + Vector3.up, Color);
         AudioDirector.PlayAt(Sfx.Eliminated, transform.position);
         if (ArenaCamera.Instance != null)
-            ArenaCamera.Instance.Shake(0.6f);
+            ArenaCamera.Instance.Shake(input != null ? 0.6f : 0.35f);
     }
 
     private void OnDestroy()

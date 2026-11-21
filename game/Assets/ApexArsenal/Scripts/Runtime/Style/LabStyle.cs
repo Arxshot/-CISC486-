@@ -37,6 +37,8 @@ public class LabStyle : ScriptableObject
     [Header("Prefabs")]
     public GameObject coopPlayerPrefab;
     public GameObject pvpPlayerPrefab;
+    [Tooltip("Ethan's AI bot (Assets/PlayerControls/LocalBot.prefab): the lab's mobile enemies in co-op.")]
+    public GameObject botPrefab;
 
     // A hand-drawn button: one sprite per state. Hover and pressed fall back to idle when missing.
     [System.Serializable]

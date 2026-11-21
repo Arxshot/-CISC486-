@@ -104,6 +104,13 @@ public class LocalBot : MonoBehaviour
     public bool IsInCover => state == BotState.Hide && atCover;
     public Vector3 CoverSpot => coverSpot;
 
+    // Difficulty knobs for game modes that ramp up, e.g. Apex Arsenal waves.
+    public void SetSkill(float reactionSeconds, float aimErrorDegrees)
+    {
+        reactionTime = Mathf.Max(0f, reactionSeconds);
+        aimError = Mathf.Clamp(aimErrorDegrees, 0f, 10f);
+    }
+
     private Vector3 Eye => transform.position + Vector3.up * LocalCombatant.AimHeight;
     private bool LowHealth => health.CurrentHealth <= health.MaxHealth * retreatHealthFraction;
     private Vector3 ThreatPosition => targetVisible ? target.transform.position : lastSeenPosition;

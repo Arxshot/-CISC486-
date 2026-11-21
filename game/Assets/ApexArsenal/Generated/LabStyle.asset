@@ -44,3 +44,4 @@ MonoBehaviour:
     pressed: {fileID: 5912089624622532744, guid: 9ca38f32465fe6c4583c7919dd9f32d7, type: 3}
   coopPlayerPrefab: {fileID: 1152291599031819603, guid: 58c7d624f6a7e044c8478f5a1431ecaf, type: 3}
   pvpPlayerPrefab: {fileID: 7775116222120247118, guid: a989827fb77da3d44ae802e29ba25b2f, type: 3}
+  botPrefab: {fileID: 3108557200, guid: 2d7d3074d9ab4df1ab591628452b8679, type: 3}

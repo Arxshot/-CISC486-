@@ -187,7 +187,7 @@ public class MatchHud : MonoBehaviour
         int seconds = Mathf.FloorToInt(director.MatchTime);
         string clock = $"{seconds / 60}:{seconds % 60:00}";
         statusText.text = MatchSettings.Mode == GameMode.Coop
-            ? $"WAVE {Mathf.Max(1, director.Wave)}/{director.TotalWaves}   TURRETS {director.TurretsLeft}   {clock}"
+            ? $"WAVE {Mathf.Max(1, director.Wave)}/{director.TotalWaves}   ENEMIES {director.EnemiesLeft}   {clock}"
             : $"PLAYERS LEFT {alive}   {clock}";
 
         var lines = new System.Text.StringBuilder();

@@ -29,11 +29,12 @@ public class ArenaSession : MonoBehaviour
         manager = managerObject.AddComponent<PlayerInputManager>();
         manager.playerPrefab = playerPrefab;
         manager.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-        manager.joinBehavior = PlayerJoinBehavior.JoinPlayersWhenJoinActionIsTriggered;
+        // Set the join action before the join behavior, or the manager logs "No join action configured".
         joinAction = new InputAction("Join", InputActionType.Button);
         joinAction.AddBinding("<Keyboard>/enter");
         joinAction.AddBinding("<Gamepad>/start");
         manager.joinAction = new InputActionProperty(joinAction);
+        manager.joinBehavior = PlayerJoinBehavior.JoinPlayersWhenJoinActionIsTriggered;
         manager.onPlayerJoined += HandleJoined;
         managerObject.SetActive(true);
         SetJoining(true);
@@ -83,6 +84,10 @@ public class ArenaSession : MonoBehaviour
         var visuals = player.GetComponent<LocalPlayerVisuals>();
         if (visuals != null)
             visuals.SetPlayerIndex(index);
+        // Co-op players are allies against the lab's bots; PvP is everyone for themselves.
+        var combatant = player.GetComponent<LocalCombatant>();
+        if (combatant != null)
+            combatant.Team = MatchSettings.Mode == GameMode.Coop ? LabBots.PlayerTeam : LocalCombatant.FreeForAll;
         AudioDirector.Instance.RegisterAll(player.gameObject);
         AudioDirector.Play(Sfx.Join);
         Poof.Spawn(spawn + Vector3.up, LabPalette.Player(index), 10, 4f);

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Placeholder enemy for Co-op until Ethan's AI bots land: a cute lab sentry that pops out of a floor
+// Static co-op enemy that fights alongside the LabBots: a cute lab sentry that pops out of a floor
 // hatch, turns to the nearest player it can see, paints them with a telegraph laser, then fires.
 // Scripted, not AI: no steering or decision tree. It has a LocalHealth, so players shoot it down.
 public class SentryTurret : MonoBehaviour
@@ -65,6 +65,8 @@ public class SentryTurret : MonoBehaviour
         collider.height = 1.8f;
         collider.radius = 0.5f;
         turret.health = root.AddComponent<LocalHealth>();
+        // On the lab's side: bots don't shoot turrets and turret lasers pass over bots unharmed.
+        root.AddComponent<LocalCombatant>().Team = LabBots.LabTeam;
 
         turret.laser = root.AddComponent<LineRenderer>();
         turret.laser.sharedMaterial = style.laser;
@@ -172,7 +174,9 @@ public class SentryTurret : MonoBehaviour
         if (hit != null)
         {
             var health = hit.GetComponentInParent<LocalHealth>();
-            if (health != null && hit.GetComponentInParent<SentryTurret>() == null)
+            var combatant = health != null ? health.GetComponent<LocalCombatant>() : null;
+            bool ally = combatant != null && combatant.Team == LabBots.LabTeam;
+            if (health != null && !ally && hit.GetComponentInParent<SentryTurret>() == null)
                 health.TakeDamage(damage);
         }
         Enter(State.Cooldown);
